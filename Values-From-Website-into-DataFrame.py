@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 import pandas as pd
 from urllib.error import HTTPError
+import urllib.request
+import re
+import ssl
+from urllib.request import Request, urlopen
 
 df = pd.read_csv('PCX - Report.csv')
 df.head(3)
@@ -22,35 +26,37 @@ def tag_visible(element):
 
 
 def text_from_html(body):
-    soup = BeautifulSoup(body, 'html.parser')
+    soup = BeautifulSoup(body, 'html.parser', from_encoding="iso-8859-1")
     texts = soup.findAll(text=True)
     visible_texts = filter(tag_visible, texts)  
     return u" ".join(t.strip() for t in visible_texts)
 
-url_text= []
 
 try:
 
-    for u in url_list:
-        url = u
-   
+    url_text= []
 
-        request = Request(
-           url,
-            headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'})
 
-        html = urlopen(request).read()
+    url = 'https://www.gfsc.gg/'
 
-        text = (text_from_html(html))
-    
-        url_text.append(text)
+
+    request = Request(
+       url,
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'})
+
+    html = urlopen(request).read()
+
+    text = (text_from_html(html))
+
+    url_text.append(text)
 
 except HTTPError as err:
     if err.code == 404:
         pass
-    else:
-        raise   
+    
+except UnicodeError as err:
+    pass  
 
 pattern = re.compile(r'(£\d\d,?\d,?\d\d?\d)')
 
