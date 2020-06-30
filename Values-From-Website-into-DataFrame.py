@@ -1,6 +1,17 @@
 import re
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+import pandas as pd
+from urllib.error import HTTPError
+
+df = pd.read_csv('PCX - Report.csv')
+df.head(3)
+
+dfurl  = df[~df['URLS'].str.contains("\.pdf")]
+url_list = dfurl['URLS'].tolist()
+
+url_list 
+ 
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
@@ -16,15 +27,30 @@ def text_from_html(body):
     visible_texts = filter(tag_visible, texts)  
     return u" ".join(t.strip() for t in visible_texts)
 
+url_text= []
 
-request = Request(
-    'https://www.gfsc.gg/news',
-    headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'})
+try:
 
-html = urlopen(request).read()
+    for u in url_list:
+        url = u
+   
 
-text = (text_from_html(html))
+        request = Request(
+           url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'})
+
+        html = urlopen(request).read()
+
+        text = (text_from_html(html))
+    
+        url_text.append(text)
+
+except HTTPError as err:
+    if err.code == 404:
+        pass
+    else:
+        raise   
 
 pattern = re.compile(r'(£\d\d,?\d,?\d\d?\d)')
 
