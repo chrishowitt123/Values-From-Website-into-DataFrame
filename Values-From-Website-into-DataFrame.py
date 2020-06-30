@@ -37,7 +37,7 @@ try:
     url_text= []
 
 
-    url = 'https://www.gfsc.gg/'
+    url = 'https://www.gfsc.gg/news'
 
 
     request = Request(
@@ -57,6 +57,7 @@ except HTTPError as err:
     
 except UnicodeError as err:
     pass  
+
 
 pattern = re.compile(r'(£\d\d,?\d,?\d\d?\d)')
 
